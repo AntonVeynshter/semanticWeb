@@ -1,10 +1,29 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
 from SPARQLWrapper import SPARQLWrapper, JSON
 import pandas as pd
+import urllib
+
+
+# In[2]:
+
 
 data_test=pd.read_csv("SNLP_2020_test.nt",sep=" ",names=["1","2","3","."])
 
 
+# In[3]:
+
+
 data_test.head()
+
+
+# In[4]:
+
+
 
 def check(s,o,sparql):
     punc = '''!()-[]{};:'"\,<>.?@#$%^&*_~'''
@@ -30,7 +49,8 @@ def check(s,o,sparql):
             results = sparql.query().convert()
         
         string_to_search=""
-        string_to_find=o.split("/")[-1][:-1].replace("_"," ")
+        string_to_find=urllib.parse.unquote(o)
+        string_to_find=string_to_find.split("/")[-1][:-1].replace("_"," ")
         for ele in punc: 
             string_to_find = string_to_find.replace(ele, " ") 
         for row in results["results"]["bindings"]:
@@ -52,6 +72,11 @@ def check(s,o,sparql):
         return "1.0"
     else:
         return "0.0"
+    
+
+
+# In[5]:
+
 
 s=None
 o=None
@@ -88,7 +113,12 @@ with open('submit.nt', 'w') as f:
             flag=True
      
         if flag==True:
-            my_answer=check(s,o,sparql)
+            direkt_answer=check(s,o,sparql)
+            backword_answer=check(o,s,sparql)
+            if direkt_answer=="1.0" or backword_answer=="1.0":
+                my_answer="1.0"
+            else:
+                my_answer="0.0"
             line=dataset_id+ " "+"<http://swc2017.aksw.org/hasTruthValue> "+'"'+my_answer+'"'+"^^<http://www.w3.org/2001/XMLSchema#double> .\n"
             f.write(line)
     f.close()
