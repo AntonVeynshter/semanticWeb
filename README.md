@@ -1,7 +1,8 @@
 # semanticWeb
 Mini-Project for Semantic Web Class.
 
-Needed: SPARQLWrapper, pandas, urllib.
+Needed: SPARQLWrapper, pandas, urllib and traceback. 
+Urllib and traceback should be in python3 native.
 Tested on python 3.8.5, Linux Mint 20 Cinnamon
 
 To run the project you need to have jupyter-notebook installed. Alternativ you can run .py file. Content is the same.
