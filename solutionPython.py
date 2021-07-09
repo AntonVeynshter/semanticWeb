@@ -25,8 +25,11 @@ data_test.head()
 # In[4]:
 
 
-
 def check(s,o,sparql):
+    """
+    This function checks, if object could be found in "abstract" and "wikiPageWikiLinks" of subject.
+    Also if there is an redirection to other page for same subject, the function will recognize it.
+    """
     punc = '''!()-[]{};:'"\,<>.?@#$%^&*_~'''
 
     sparql.setQuery(
@@ -80,8 +83,16 @@ def check(s,o,sparql):
 # In[5]:
 
 
-
 def check2(s,p,o,sparql):
+    """
+    This function checks, if object could be found in "abstract" and "wikiPageWikiLinks" of subject.
+    Also if there is an redirection to other page for same subject, the function will recognize it.
+    
+    In difference to the "check" function this one also exams, if there is the property in the abstract.
+    And if the property is there, and object is not to find withiin +- 10 tokens, then respond is '0.0'.
+    At the end we recognized, that there is no any advantages of this function on that exactly data set , 
+    but "do not touch running system if you don't need to"
+    """
     punc = '''!()-[]{};:'"\,<>.?@#$%^&*_~'''
     abstract=None
     sparql.setQuery(
@@ -129,6 +140,9 @@ def check2(s,p,o,sparql):
     #abstract=abstract.split(" ")
     if all(item in string_to_search for item in string_to_find):
         return "1.0"
+    
+    
+        # this is exactly the difference between check and check2.
         if prop in string_to_search:
             for i,token in enumerate(string_to_search):
                 if token==prop:
@@ -156,7 +170,11 @@ range_list=["<http://dbpedia.org/ontology/subsidiary>",
            "<http://dbpedia.org/ontology/author>"]
 ignore_list=["<http://dbpedia.org/ontology/team>"]
 def check_property(p,o,sparql):
-
+    """
+    This function checks if object type suits for property range. 
+    If not, the functon returns "0.0".
+    Some cases are defined separatly.
+    """
     if p in range_list:
         sparql.setQuery(
                 "SELECT ?a ?b WHERE {{\
@@ -229,8 +247,11 @@ with open('submit.nt', 'w') as f:
             p=row["3"]
             
         if flag==True:
+            # check if Abstract and wikilings contain object. If yes, then answer is "1.0"
             direkt_answer=check2(s,p,o,sparql)
+            # check if Abstract and wikilings of object contain subject. If yes, then answer is "1.0"
             backword_answer=check(o,s,sparql)
+            # if one of the above answers is 1.0, check if object type is in range of property
             if direkt_answer=="1.0" or backword_answer=="1.0":
                 my_answer=check_property(p,o,sparql)
             else:
@@ -238,4 +259,10 @@ with open('submit.nt', 'w') as f:
             line=dataset_id+ " "+"<http://swc2017.aksw.org/hasTruthValue> "+'"'+my_answer+'"'+"^^<http://www.w3.org/2001/XMLSchema#double> .\n"
             f.write(line)
     f.close()
+
+
+# In[ ]:
+
+
+
 
